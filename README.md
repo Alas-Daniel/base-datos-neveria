@@ -1,2 +1,2 @@
 ## Proyecto de base de datos La Neveria
-Diseño de Base de Datos
+Diseño de Base de Datos g2 
