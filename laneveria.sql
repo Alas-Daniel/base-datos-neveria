@@ -59,7 +59,7 @@ CREATE TABLE ESTADOUSUARIO (
 CREATE TABLE PROVEEDOR (
     ProveedorId int primary key identity(1,1),
     Proveedor varchar(50) not null,
-    TipoProveedor varchar(50) check (TipoProveedor in ('PN', 'RS')) not null,
+    TipoProveedor varchar(50) check (TipoProveedor in ('PN', 'PJ')) not null,
     TipoProductoId tinyint not null,
     Telefono varchar(15) not null,
     Email varchar(100) unique not null,
@@ -73,13 +73,13 @@ CREATE TABLE PROVEEDOR (
 CREATE TABLE MUNICIPIO (
     MunicipioId smallint primary key identity(1,1),
     DeptoId tinyint not null,
-    Zona varchar(10) check (Zona in ('CENTRO', 'ESTE', 'NORTE', 'SUR')) not null,
+    Zona varchar(10) check (Zona in ('CENTRO', 'ESTE', 'NORTE', 'SUR', 'OESTE')) not null,
     foreign key (DeptoId) references DEPTO(DeptoId)
 ); --
 
 CREATE TABLE DISTRITO (
     DistritoId smallint primary key identity(1,1),
-    Distrito varchar(75) not null,
+    Distrito varchar(50) not null,
     MunicipioId smallint not null,
     foreign key (MunicipioId) references MUNICIPIO(MunicipioId)
 ); --
@@ -116,10 +116,10 @@ CREATE TABLE EMPLEADO (
     Telefono varchar(15) unique not null,
     Email varchar(100) unique not null,
     TipoDocumento varchar(15) check (TipoDocumento in ('DUI','NIT','Pasaporte')) not null,
-    NumeroDoc varchar(20) unique not null,
+    NumeroDocumento varchar(20) unique not null,
     FechaNac date not null,
     Direccion varchar(255) not null,
-    Sexo char(1) check(Sexo in ('H','M')),
+    Sexo char(1) check(Sexo in ('H','M')) not null,
     Edad as (DATEDIFF(year, FechaNac, GETDATE())),
     Cargoid smallint not null,
     SucursalId smallint not null,
@@ -145,9 +145,10 @@ CREATE TABLE FACTURA (
     SucursalId smallint not null,
     UsuarioId int not null,
     Fecha datetime not null default GETDATE(),
-    Total money not null,
+    Subtotal money not null,
+    IVA AS (Subtotal * 0.13) PERSISTED,
     Descuento money null,
-    TotalPagar AS (Total - ISNULL(Descuento, 0)),
+    TotalPagar AS (Subtotal + IVA - ISNULL(Descuento, 0)) PERSISTED,
     foreign key (ClienteId) references CLIENTE(ClienteId),
     foreign key (SucursalId) references SUCURSAL(SucursalId),
     foreign key (UsuarioId) references USUARIO(UsuarioId)
