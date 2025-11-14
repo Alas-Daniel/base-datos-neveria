@@ -168,22 +168,20 @@ CREATE TABLE DETALLEFACTURA (
     ProductoId int not null,
     Cantidad int not null,
     PrecioUnitario money not null,
-    Subtotal as (Cantidad * PrecioUnitario),
-    -- CHECK (ProductoId in (SELECT ProductoId FROM PRODUCTO WHERE TipoProducto IN ('P', 'R'))),
+    Subtotal as (Cantidad * PrecioUnitario), -- P, R
     foreign key (FacturaId) references FACTURA(FacturaId),
     foreign key (ProductoId) references PRODUCTO(ProductoId)
 );
 
 -- BLOQUE 6: Gestión de Inventario --
 
-CREATE TABLE INVENTARIO (
+CREATE TABLE INVENTARIO ( 
     InventarioId int primary key identity(1,1),
     ProductoId int not null,
     SucursalId smallint not null,
     CantidadDisponible decimal(10, 2) not null default 0,
     UnidadMedida varchar(20) not null,
-    CONSTRAINT UQ_Inventario_Producto_Sucursal UNIQUE (ProductoId, SucursalId),
-    -- CHECK (ProductoId in (SELECT ProductoId FROM PRODUCTO WHERE TipoProducto IN ('I', 'R'))),
+    CONSTRAINT UQ_Inventario_Producto_Sucursal UNIQUE (ProductoId, SucursalId), -- I, R
     foreign key (ProductoId) references PRODUCTO(ProductoId),
     foreign key (SucursalId) references SUCURSAL(SucursalId)
 );
@@ -196,10 +194,10 @@ CREATE TABLE MOVIMIENTOINVENTARIO (
     Fecha datetime not null default GETDATE(),
     Tipo char(1) check(Tipo in ('E','S')), -- E=Entrada, S=Salida
     Observaciones varchar(255) null,
-    -- CHECK (
-    --     (Tipo='E' AND ProveedorId IS NOT NULL) OR
-    --     (Tipo='S' AND ProveedorId IS NULL)
-    -- ),
+    CHECK (
+        (Tipo='E' AND ProveedorId IS NOT NULL) OR
+        (Tipo='S' AND ProveedorId IS NULL)
+    ),
     foreign key (UsuarioId) references USUARIO(UsuarioId),
     foreign key (SucursalId) references SUCURSAL(SucursalId),
     foreign key (ProveedorId) references PROVEEDOR(ProveedorId)
@@ -208,9 +206,8 @@ CREATE TABLE MOVIMIENTOINVENTARIO (
 CREATE TABLE DETALLEMOVIMIENTOINVENTARIO(
     DetalleMovimientoId int primary key identity(1,1),
     MovimientoId int not null,
-    Cantidad decimal(10,2) not null,
-    ProductoId int not null,
-    -- CHECK (ProductoId FROM PRODUCTO WHERE TipoProducto IN ('I', 'R'))
+    Cantidad decimal(10,2) not null, -- I, R
+    ProductoId int not null, 
     foreign key (MovimientoId) references MOVIMIENTOINVENTARIO(MovimientoId),
     foreign key (ProductoId) references PRODUCTO(ProductoId)
 );
@@ -239,8 +236,8 @@ BEGIN
     -- Insertar nuevos registros si no existían en inventario
     INSERT INTO INVENTARIO (ProductoId, SucursalId, CantidadDisponible, UnidadMedida)
     SELECT d.ProductoId, m.SucursalId,
-           CASE m.Tipo WHEN 'E' THEN d.Cantidad ELSE 0 END,
-           'Unidades'  -- valor genérico de unidad
+        CASE m.Tipo WHEN 'E' THEN d.Cantidad ELSE 0 END,
+        d.UnidadMedida  -- usar la unidad definida en el detalle del movimiento
     FROM inserted d
     INNER JOIN MOVIMIENTOINVENTARIO m ON d.MovimientoId = m.MovimientoId
     WHERE NOT EXISTS (
@@ -250,6 +247,7 @@ BEGIN
           AND i.SucursalId = m.SucursalId
     );
 END;
+
 
 CREATE TRIGGER trg_ActualizarFacturaDespuesDetalle
 ON DETALLEFACTURA
@@ -262,12 +260,18 @@ BEGIN
     UPDATE f
     SET 
         f.Subtotal = ISNULL(df.TotalDetalle, 0),
-        f.IVA = ISNULL(df.TotalDetalle, 0) * 0.13  -- ejemplo: IVA 13%
+        f.IVA = ISNULL(df.TotalDetalle, 0) * 0.13
     FROM FACTURA f
-    LEFT JOIN (
+    INNER JOIN (
         SELECT Detalle.FacturaId, SUM(Detalle.Cantidad * Detalle.PrecioUnitario) AS TotalDetalle
         FROM DETALLEFACTURA Detalle
+        WHERE Detalle.FacturaId IN (
+            SELECT FacturaId FROM inserted
+            UNION
+            SELECT FacturaId FROM deleted
+        )
         GROUP BY Detalle.FacturaId
     ) df ON f.FacturaId = df.FacturaId;
+
 END;
 
