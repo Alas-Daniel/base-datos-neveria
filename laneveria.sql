@@ -97,7 +97,7 @@ CREATE TABLE CLIENTE (
     ClienteId int primary key identity(1,1),
     Cliente varchar(50) not null,
     TipoCliente varchar(2) check (TipoCliente in ('PN', 'PJ', 'CF')) not null,
-    DUI varchar(15) null,
+    DUI varchar(20) null,
     NIT varchar(50) null,
     NRC varchar(20) null,
     Telefono varchar(15) null,
@@ -223,14 +223,14 @@ AFTER INSERT
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Insertar nuevos registros si no existían en inventario
     INSERT INTO INVENTARIO (ProductoId, SucursalId, CantidadDisponible, UnidadMedida)
-    SELECT d.ProductoId, m.SucursalId,
-           SUM(CASE m.Tipo WHEN 'E' THEN d.Cantidad ELSE 0 END),
+    SELECT d.ProductoId,
+           m.SucursalId,
+           SUM(CASE WHEN m.Tipo = 'E' THEN d.Cantidad ELSE 0 END),
            'Unidades'
     FROM inserted d
-    INNER JOIN MOVIMIENTOINVENTARIO m ON d.MovimientoId = m.MovimientoId
+    INNER JOIN MOVIMIENTOINVENTARIO m 
+        ON d.MovimientoId = m.MovimientoId
     GROUP BY d.ProductoId, m.SucursalId
     HAVING NOT EXISTS (
         SELECT 1
@@ -239,15 +239,26 @@ BEGIN
           AND i.SucursalId = m.SucursalId
     );
 
-    -- Actualizar registros existentes
+    ;WITH Mov AS (
+        SELECT 
+            d.ProductoId,
+            m.SucursalId,
+            SUM(CASE 
+                    WHEN m.Tipo = 'E' THEN d.Cantidad
+                    WHEN m.Tipo = 'S' THEN -d.Cantidad
+                END) AS MovimientoTotal
+        FROM inserted d
+        INNER JOIN MOVIMIENTOINVENTARIO m 
+            ON d.MovimientoId = m.MovimientoId
+        GROUP BY d.ProductoId, m.SucursalId
+    )
     UPDATE i
-    SET i.CantidadDisponible = i.CantidadDisponible + 
-        SUM(CASE m.Tipo WHEN 'E' THEN d.Cantidad WHEN 'S' THEN -d.Cantidad END)
+    SET i.CantidadDisponible = i.CantidadDisponible + Mov.MovimientoTotal
     FROM INVENTARIO i
-    INNER JOIN inserted d ON i.ProductoId = d.ProductoId
-    INNER JOIN MOVIMIENTOINVENTARIO m ON d.MovimientoId = m.MovimientoId
-    WHERE i.SucursalId = m.SucursalId
-    GROUP BY i.ProductoId, i.SucursalId, i.CantidadDisponible;
+    INNER JOIN Mov 
+        ON i.ProductoId = Mov.ProductoId
+       AND i.SucursalId = Mov.SucursalId;
+
 END;
 GO
 
@@ -275,7 +286,5 @@ BEGIN
         )
         GROUP BY Detalle.FacturaId
     ) df ON f.FacturaId = df.FacturaId;
-
 END;
 GO
-
