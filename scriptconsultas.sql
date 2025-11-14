@@ -88,21 +88,15 @@ GO
 
 INSERT INTO USUARIO (Usuario, Clave, TipoUsuarioId, EmpleadoId, EstadoId)
 VALUES
-('danielA','1234',1,1,1),
-('iverZ','1234',2,2,1),
-('carlosC','1234',3,3,1),
-('edwinM','1234',4,4,1),
-('luisR','1234',5,5,1),
-('mariaH','1234',6,6,1),
-('joseF','1234',7,7,1),
-('sofiaV','1234',1,8,1),
-('pedroR','1234',2,9,1),
-('carlaM','1234',3,10,1),
-('miguelC','1234',4,11,1),
-('elenaM','1234',5,12,1),
-('ricardoO','1234',6,13,1),
-('valeriaT','1234',7,14,1),
-('andresS','1234',1,15,1);
+('danielA','1234',4,1,1),
+('iverZ','1234',1,2,1),
+('carlosC','1234',2,3,1),
+('edwinM','1234',3,4,1),
+('sofiaV','1234',4,8,1),
+('pedroR','1234',1,9,1),
+('carlaM','1234',2,10,1),
+('miguelC','1234',3,11,1),
+('andresS','1234',4,15,1);
 GO
 
 -- BLOQUE 6: CLIENTE
@@ -111,21 +105,20 @@ INSERT INTO CLIENTE (Cliente, TipoCliente, DUI, NIT, NRC, Telefono, Correo, Dire
 VALUES
 ('Pedro Pérez','PN','00000001',NULL,NULL,'5037010001','pedro.perez@email.com','Col. Centro'),
 ('Empresa ABC','PJ',NULL,'123456-7','NRC001','5037010002','contacto@abc.com','Av. Principal 123'),
-('Consumidor Final','CF',NULL,NULL,NULL,'5037010003','', 'Col. Norte'),
+('Consumidor Final','CF',NULL,NULL,NULL,'5037010003','','Col. Norte'),
 ('Luis Gomez','PN','00000002',NULL,NULL,'5037010004','luis.gomez@email.com','Col. Sur'),
 ('Frutas SA','PJ',NULL,'123456-8','NRC002','5037010005','ventas@frutas.com','Av. Central 45'),
 ('Maria Lopez','PN','00000003',NULL,NULL,'5037010006','maria.lopez@email.com','Col. Este'),
-('Juventud CF','CF',NULL,NULL,NULL,'5037010007','', 'Col. Oeste'),
+('Juventud CF','CF',NULL,NULL,NULL,'5037010007','','Col. Oeste'),
 ('Carlos Perez','PN','00000004',NULL,NULL,'5037010008','carlos.perez@email.com','Col. Centro'),
 ('Empresa XYZ','PJ',NULL,'123456-9','NRC003','5037010009','ventas@xyz.com','Av. Libertad 12'),
 ('Ana Torres','PN','00000005',NULL,NULL,'5037010010','ana.torres@email.com','Col. Norte'),
-('Consumidor Final 2','CF',NULL,NULL,NULL,'5037010011','', 'Col. Sur'),
+('Consumidor Final 2','CF',NULL,NULL,NULL,'5037010011','','Col. Sur'),
 ('Luis Ramirez','PN','00000006',NULL,NULL,'5037010012','luis.ramirez@email.com','Col. Este'),
 ('Sorbeteria SA','PJ',NULL,'123456-10','NRC004','5037010013','ventas@sorbeteria.com','Av. Centro 34'),
 ('Sofia Jimenez','PN','00000007',NULL,NULL,'5037010014','sofia.jimenez@email.com','Col. Oeste'),
-('Consumidor Final 3','CF',NULL,NULL,NULL,'5037010015','', 'Col. Norte');
+('Consumidor Final 3','CF',NULL,NULL,NULL,'5037010015','','Col. Norte');
 GO
-
 -- BLOQUE 7: PROVEEDOR
 
 INSERT INTO PROVEEDOR (Proveedor, TipoProveedor, TipoProductoId, Telefono, Email, Direccion, DUI, NIT, NRC)
@@ -196,7 +189,6 @@ GO
 
 -- BLOQUE 9: INVENTARIO
 
--- Aquí sí usamos UnidadMedida
 INSERT INTO INVENTARIO (ProductoId, SucursalId, CantidadDisponible, UnidadMedida)
 VALUES
 -- Insumos (productos finales)
@@ -239,14 +231,14 @@ VALUES
 (5,5,5,0,18,2.34),
 (6,6,6,0,30,3.9),
 (7,7,7,0,22,2.86),
-(8,1,8,0,12,1.56),
-(9,2,9,0,16,2.08),
-(10,3,10,0,14,1.82),
-(11,4,11,0,19,2.47),
-(12,5,12,0,17,2.21),
-(13,6,13,0,23,2.99),
-(14,7,14,0,20,2.6),
-(15,1,15,0,21,2.73);
+(8,1,1,0,12,1.56),
+(9,2,2,0,16,2.08),
+(10,3,3,0,14,1.82),
+(11,4,4,0,19,2.47),
+(12,5,5,0,17,2.21),
+(13,6,6,0,23,2.99),
+(14,7,7,0,20,2.6),
+(15,1,1,0,21,2.73);
 GO
 
 -- BLOQUE 11: DETALLEFACTURA
@@ -282,13 +274,7 @@ VALUES
 (6,6,6,'E','Entrada inicial'),
 (7,7,7,'E','Entrada inicial'),
 (8,1,8,'E','Entrada inicial'),
-(9,2,9,'E','Entrada inicial'),
-(10,3,10,'E','Entrada inicial'),
-(11,4,11,'E','Entrada inicial'),
-(12,5,12,'E','Entrada inicial'),
-(13,6,13,'E','Entrada inicial'),
-(14,7,14,'E','Entrada inicial'),
-(15,1,15,'E','Entrada inicial');
+(9,2,9,'E','Entrada inicial');
 GO
 
 -- BLOQUE 13: DETALLEMOVIMIENTOINVENTARIO
@@ -303,11 +289,6 @@ VALUES
 (6,30,11),(6,25,12),
 (7,15,13),(7,10,14),
 (8,40,1),(8,20,2),
-(9,30,3),(9,25,4),
-(10,20,5),(10,30,6),
-(11,15,7),(11,10,8),
-(12,25,9),(12,15,10),
-(13,30,11),(13,10,12),
-(14,20,13),(14,25,14),
-(15,30,1),(15,20,2);
+(9,30,3),(9,25,4);
 GO
+

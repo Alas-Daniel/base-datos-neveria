@@ -97,16 +97,16 @@ CREATE TABLE CLIENTE (
     ClienteId int primary key identity(1,1),
     Cliente varchar(50) not null,
     TipoCliente varchar(2) check (TipoCliente in ('PN', 'PJ', 'CF')) not null,
-    DUI varchar(15) unique null,
-    NIT varchar(50) unique null,
-    NRC varchar(20) unique null,
+    DUI varchar(15) null,
+    NIT varchar(50) null,
+    NRC varchar(20) null,
     Telefono varchar(15) null,
     Correo varchar(100) null,
     Direccion varchar(255) null,
     CHECK (
-        (TipoCliente='CF') OR -- Consumidor Final
-        (TipoCliente='PN' AND DUI IS NOT NULL) OR -- Persona Natural con DUI
-        (TipoCliente='PJ' AND NIT IS NOT NULL AND NRC IS NOT NULL) -- Empresa completa
+        (TipoCliente='CF') OR
+        (TipoCliente='PN' AND DUI IS NOT NULL) OR
+        (TipoCliente='PJ' AND NIT IS NOT NULL AND NRC IS NOT NULL)
     )
 ); --
 
@@ -123,9 +123,9 @@ CREATE TABLE PROVEEDOR (
     Telefono varchar(15) not null,
     Email varchar(100) unique not null,
     Direccion varchar(255) not null,
-    DUI varchar(20) unique null,
-    NIT varchar(50) unique null,
-    NRC varchar(20) unique null,
+    DUI varchar(20) null,
+    NIT varchar(50) null,
+    NRC varchar(20) null,
     foreign key (TipoProductoId) references TIPOPRODUCTO(TipoProductoId)
 ); --
 
@@ -216,6 +216,7 @@ CREATE TABLE DETALLEMOVIMIENTOINVENTARIO(
 
 
 -- TRIGGERS PARA CONTROL DE INVENTARIO --
+GO
 CREATE TRIGGER trg_ActualizarInventarioDespuesMovimiento
 ON DETALLEMOVIMIENTOINVENTARIO
 AFTER INSERT
@@ -223,36 +224,34 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Actualiza el inventario sumando o restando según el tipo del movimiento
-    UPDATE i
-    SET i.CantidadDisponible = 
-        CASE m.Tipo
-            WHEN 'E' THEN i.CantidadDisponible + d.Cantidad  -- Entrada: sumar
-            WHEN 'S' THEN i.CantidadDisponible - d.Cantidad  -- Salida: restar
-            ELSE i.CantidadDisponible
-        END
-    FROM INVENTARIO i
-    INNER JOIN inserted d ON i.ProductoId = d.ProductoId
-    INNER JOIN MOVIMIENTOINVENTARIO m ON d.MovimientoId = m.MovimientoId
-    WHERE i.SucursalId = m.SucursalId;
-
     -- Insertar nuevos registros si no existían en inventario
     INSERT INTO INVENTARIO (ProductoId, SucursalId, CantidadDisponible, UnidadMedida)
     SELECT d.ProductoId, m.SucursalId,
-        CASE m.Tipo WHEN 'E' THEN d.Cantidad ELSE 0 END,
-        'Unidades' 
+           SUM(CASE m.Tipo WHEN 'E' THEN d.Cantidad ELSE 0 END),
+           'Unidades'
     FROM inserted d
     INNER JOIN MOVIMIENTOINVENTARIO m ON d.MovimientoId = m.MovimientoId
-    WHERE NOT EXISTS (
-        SELECT 1 
+    GROUP BY d.ProductoId, m.SucursalId
+    HAVING NOT EXISTS (
+        SELECT 1
         FROM INVENTARIO i
         WHERE i.ProductoId = d.ProductoId
-        AND i.SucursalId = m.SucursalId
+          AND i.SucursalId = m.SucursalId
     );
+
+    -- Actualizar registros existentes
+    UPDATE i
+    SET i.CantidadDisponible = i.CantidadDisponible + 
+        SUM(CASE m.Tipo WHEN 'E' THEN d.Cantidad WHEN 'S' THEN -d.Cantidad END)
+    FROM INVENTARIO i
+    INNER JOIN inserted d ON i.ProductoId = d.ProductoId
+    INNER JOIN MOVIMIENTOINVENTARIO m ON d.MovimientoId = m.MovimientoId
+    WHERE i.SucursalId = m.SucursalId
+    GROUP BY i.ProductoId, i.SucursalId, i.CantidadDisponible;
 END;
+GO
 
-
-
+GO
 CREATE TRIGGER trg_ActualizarFacturaDespuesDetalle
 ON DETALLEFACTURA
 AFTER INSERT, UPDATE, DELETE
@@ -278,4 +277,5 @@ BEGIN
     ) df ON f.FacturaId = df.FacturaId;
 
 END;
+GO
 
