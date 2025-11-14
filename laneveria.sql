@@ -141,6 +141,7 @@ CREATE TABLE PRODUCTO (
     Producto varchar(75) unique not null,
     CategoriaId tinyint not null,
     Precio money not null,
+    TipoProducto char(1) check (TipoProducto in ('P', 'I', 'R')) not null,
     foreign key (CategoriaId) references CATEGORIAPRODUCTO(CategoriaId)
 );
 
@@ -168,6 +169,7 @@ CREATE TABLE DETALLEFACTURA (
     Cantidad int not null,
     PrecioUnitario money not null,
     Subtotal as (Cantidad * PrecioUnitario),
+    -- CHECK (ProductoId in (SELECT ProductoId FROM PRODUCTO WHERE TipoProducto IN ('P', 'R'))),
     foreign key (FacturaId) references FACTURA(FacturaId),
     foreign key (ProductoId) references PRODUCTO(ProductoId)
 );
@@ -178,7 +180,10 @@ CREATE TABLE INVENTARIO (
     InventarioId int primary key identity(1,1),
     ProductoId int not null,
     SucursalId smallint not null,
-    CantidadDisponible int not null default 0,
+    CantidadDisponible decimal(10, 2) not null default 0,
+    UnidadMedida varchar(20) not null,
+    CONSTRAINT UQ_Inventario_Producto_Sucursal UNIQUE (ProductoId, SucursalId),
+    -- CHECK (ProductoId in (SELECT ProductoId FROM PRODUCTO WHERE TipoProducto IN ('I', 'R'))),
     foreign key (ProductoId) references PRODUCTO(ProductoId),
     foreign key (SucursalId) references SUCURSAL(SucursalId)
 );
@@ -188,24 +193,81 @@ CREATE TABLE MOVIMIENTOINVENTARIO (
     UsuarioId int not null,
     SucursalId smallint not null,
     ProveedorId int null,
-    FacturaId int null,   -- se usa solo si es salida de stock
     Fecha datetime not null default GETDATE(),
     Tipo char(1) check(Tipo in ('E','S')), -- E=Entrada, S=Salida
-    CHECK (
-        (Tipo='E' AND ProveedorId IS NOT NULL AND FacturaId IS NULL) OR
-        (Tipo='S' AND FacturaId IS NOT NULL AND ProveedorId IS NULL)
-    ),
+    Observaciones varchar(255) null,
+    -- CHECK (
+    --     (Tipo='E' AND ProveedorId IS NOT NULL) OR
+    --     (Tipo='S' AND ProveedorId IS NULL)
+    -- ),
     foreign key (UsuarioId) references USUARIO(UsuarioId),
     foreign key (SucursalId) references SUCURSAL(SucursalId),
-    foreign key (FacturaId) references FACTURA(FacturaId),
     foreign key (ProveedorId) references PROVEEDOR(ProveedorId)
 );
 
 CREATE TABLE DETALLEMOVIMIENTOINVENTARIO(
     DetalleMovimientoId int primary key identity(1,1),
     MovimientoId int not null,
-    Cantidad int not null,
+    Cantidad decimal(10,2) not null,
     ProductoId int not null,
+    -- CHECK (ProductoId FROM PRODUCTO WHERE TipoProducto IN ('I', 'R'))
     foreign key (MovimientoId) references MOVIMIENTOINVENTARIO(MovimientoId),
-    foreign key (ProductoId) references PRODUCTO(ProductoId),
+    foreign key (ProductoId) references PRODUCTO(ProductoId)
 );
+
+-- TRIGGERS PARA CONTROL DE INVENTARIO --
+CREATE TRIGGER trg_ActualizarInventarioDespuesMovimiento
+ON DETALLEMOVIMIENTOINVENTARIO
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Actualiza el inventario sumando o restando según el tipo del movimiento
+    UPDATE i
+    SET i.CantidadDisponible = 
+        CASE m.Tipo
+            WHEN 'E' THEN i.CantidadDisponible + d.Cantidad  -- Entrada: sumar
+            WHEN 'S' THEN i.CantidadDisponible - d.Cantidad  -- Salida: restar
+            ELSE i.CantidadDisponible
+        END
+    FROM INVENTARIO i
+    INNER JOIN inserted d ON i.ProductoId = d.ProductoId
+    INNER JOIN MOVIMIENTOINVENTARIO m ON d.MovimientoId = m.MovimientoId
+    WHERE i.SucursalId = m.SucursalId;
+
+    -- Insertar nuevos registros si no existían en inventario
+    INSERT INTO INVENTARIO (ProductoId, SucursalId, CantidadDisponible, UnidadMedida)
+    SELECT d.ProductoId, m.SucursalId,
+           CASE m.Tipo WHEN 'E' THEN d.Cantidad ELSE 0 END,
+           'Unidades'  -- valor genérico de unidad
+    FROM inserted d
+    INNER JOIN MOVIMIENTOINVENTARIO m ON d.MovimientoId = m.MovimientoId
+    WHERE NOT EXISTS (
+        SELECT 1 
+        FROM INVENTARIO i
+        WHERE i.ProductoId = d.ProductoId
+          AND i.SucursalId = m.SucursalId
+    );
+END;
+
+CREATE TRIGGER trg_ActualizarFacturaDespuesDetalle
+ON DETALLEFACTURA
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Actualizar Subtotal e IVA de todas las facturas afectadas
+    UPDATE f
+    SET 
+        f.Subtotal = ISNULL(df.TotalDetalle, 0),
+        f.IVA = ISNULL(df.TotalDetalle, 0) * 0.13  -- ejemplo: IVA 13%
+    FROM FACTURA f
+    LEFT JOIN (
+        SELECT Detalle.FacturaId, SUM(Detalle.Cantidad * Detalle.PrecioUnitario) AS TotalDetalle
+        FROM DETALLEFACTURA Detalle
+        GROUP BY Detalle.FacturaId
+    ) df ON f.FacturaId = df.FacturaId;
+END;
+
