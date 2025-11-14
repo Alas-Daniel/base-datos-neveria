@@ -3,7 +3,7 @@ GO
 USE LANEVERIA;
 GO
 
---Tabla de informacion--
+-- BLOQUE 1: Información de la empresa --
 
 CREATE TABLE EMPRESA (
     NombreComercial varchar(100) not null,
@@ -17,89 +17,24 @@ CREATE TABLE EMPRESA (
     NRC varchar(50) not null
 );
 
---Creación de tablas madre---
-
-CREATE TABLE CLIENTE (
-    ClienteId int primary key identity(1,1),
-    Cliente varchar(50) not null
-); --
-
-CREATE TABLE TIPOUSUARIO (
-    TipoUsuarioId tinyint primary key identity(1,1),
-    TipoUsuario varchar(25) unique not null
-); --
-
-CREATE TABLE CARGO (
-    CargoId smallint primary key identity(1,1),
-    Cargo varchar(30) unique not null 
-); --
-
 CREATE TABLE DEPTO (
     DeptoId tinyint primary key identity(1,1),
     Depto varchar(20) unique not null
-); --
-
-CREATE TABLE TIPOPRODUCTO (
-    TipoProductoId tinyint primary key identity(1,1),
-    TipoProducto varchar(50) unique not null
-); --
-
-CREATE TABLE CATEGORIAPRODUCTO (
-    CategoriaId tinyint PRIMARY KEY IDENTITY(1,1),
-    Categoria varchar(50) unique not null
-); --
-
-CREATE TABLE ESTADOUSUARIO (
-    EstadoId tinyint primary key identity(1,1),
-    Estado varchar(20) unique not null
 );
-
---Creacion de tablas hijas--
-
-CREATE TABLE PROVEEDOR (
-    ProveedorId int primary key identity(1,1),
-    Proveedor varchar(50) not null,
-    TipoProveedor varchar(50) check (TipoProveedor in ('PN', 'PJ')) not null,
-    TipoProductoId tinyint not null,
-    Telefono varchar(15) not null,
-    Email varchar(100) unique not null,
-    Direccion varchar(255) not null,
-    DUI varchar(20) unique null,
-    NIT varchar(50) unique null,
-    NRC varchar(20) unique null,
-    foreign key (TipoProductoId) references TIPOPRODUCTO(TipoProductoId)
-); --
 
 CREATE TABLE MUNICIPIO (
     MunicipioId smallint primary key identity(1,1),
     DeptoId tinyint not null,
     Zona varchar(10) check (Zona in ('CENTRO', 'ESTE', 'NORTE', 'SUR', 'OESTE')) not null,
     foreign key (DeptoId) references DEPTO(DeptoId)
-); --
+);
 
 CREATE TABLE DISTRITO (
-    DistritoId smallint primary key identity(1,1),
+    DistritoId smallint primary key identity(1,1), 
     Distrito varchar(50) not null,
     MunicipioId smallint not null,
     foreign key (MunicipioId) references MUNICIPIO(MunicipioId)
-); --
-
-CREATE TABLE PRODUCTO (
-    ProductoId int primary key identity(1,1),
-    Producto varchar(75) unique not null,
-    CategoriaId tinyint not null,
-    Precio money not null,
-    foreign key (CategoriaId) references CATEGORIAPRODUCTO(CategoriaId)
-); --
-
-CREATE TABLE INVENTARIO (
-    InventarioId int primary key identity(1,1),
-    ProductoId int not null,
-    SucursalId int not null,
-    CantidadDisponible int not null default 0,
-    foreign key (ProductoId) references PRODUCTO(ProductoId),
-    foreign key (SucursalId) references SUCURSAL(SucursalId)
-); --
+);
 
 CREATE TABLE SUCURSAL (
     SucursalId smallint primary key identity(1,1),
@@ -107,7 +42,24 @@ CREATE TABLE SUCURSAL (
     Direccion varchar(255) not null,
     DistritoId smallint not null,
     foreign key (DistritoId) references DISTRITO(DistritoId)
-); --
+);
+
+-- BLOQUE 2: Gestión de usuarios y empleados --
+
+CREATE TABLE CARGO (
+    CargoId smallint primary key identity(1,1),
+    Cargo varchar(30) unique not null
+);
+
+CREATE TABLE TIPOUSUARIO (
+    TipoUsuarioId tinyint primary key identity(1,1),
+    TipoUsuario varchar(25) unique not null
+);
+
+CREATE TABLE ESTADOUSUARIO (
+    EstadoId tinyint primary key identity(1,1),
+    Estado varchar(20) unique not null
+);
 
 CREATE TABLE EMPLEADO (
     EmpleadoId int primary key identity(1,1),
@@ -125,19 +77,74 @@ CREATE TABLE EMPLEADO (
     SucursalId smallint not null,
     foreign key (Cargoid) references CARGO(Cargoid),
     foreign key (SucursalId) references SUCURSAL(SucursalId)
-); --
+);
 
 CREATE TABLE USUARIO (
     UsuarioId int primary key identity(1,1),
     Usuario varchar(60) unique not null,
     Clave varchar(100) not null,
-    TipodeUsuarioId tinyint not null,
+    TipoUsuarioId tinyint not null,
     EmpleadoId int not null,
     EstadoId tinyint not null,
-    foreign key (TipodeUsuarioId) references TIPOUSUARIO(TipodeUsuarioId),
+    foreign key (TipoUsuarioId) references TIPOUSUARIO(TipoUsuarioId),
     foreign key (EmpleadoId) references EMPLEADO(EmpleadoId),
     foreign key (EstadoId) references ESTADOUSUARIO(EstadoId)
-); --
+);
+
+-- BLOQUE 3: Clientes y Proveedores --
+
+CREATE TABLE CLIENTE (
+    ClienteId int primary key identity(1,1),
+    Cliente varchar(50) not null,
+    TipoCliente varchar(2) check (TipoCliente in ('PN', 'PJ', 'CF')) not null,
+    DUI varchar(15) unique null,
+    NIT varchar(50) unique null,
+    NRC varchar(20) unique null,
+    Telefono varchar(15) null,
+    Correo varchar(100) null,
+    Direccion varchar(255) null,
+    CHECK (
+        (TipoCliente='CF') OR -- Consumidor Final
+        (TipoCliente='PN' AND DUI IS NOT NULL) OR -- Persona Natural con DUI
+        (TipoCliente='PJ' AND NIT IS NOT NULL AND NRC IS NOT NULL) -- Empresa completa
+    )  
+);
+
+CREATE TABLE TIPOPRODUCTO (
+    TipoProductoId tinyint primary key identity(1,1),
+    TipoProducto varchar(50) unique not null
+);
+
+CREATE TABLE PROVEEDOR (
+    ProveedorId int primary key identity(1,1),
+    Proveedor varchar(50) not null,
+    TipoProveedor varchar(50) check (TipoProveedor in ('PN', 'PJ')) not null,
+    TipoProductoId tinyint not null,
+    Telefono varchar(15) not null,
+    Email varchar(100) unique not null,
+    Direccion varchar(255) not null,
+    DUI varchar(20) unique null,
+    NIT varchar(50) unique null,
+    NRC varchar(20) unique null,
+    foreign key (TipoProductoId) references TIPOPRODUCTO(TipoProductoId)
+);
+
+-- BLOQUE 4: Catálogo de productos --
+
+CREATE TABLE CATEGORIAPRODUCTO (
+    CategoriaId tinyint primary key identity(1,1),
+    Categoria varchar(50) unique not null
+);
+
+CREATE TABLE PRODUCTO (
+    ProductoId int primary key identity(1,1),
+    Producto varchar(75) unique not null,
+    CategoriaId tinyint not null,
+    Precio money not null,
+    foreign key (CategoriaId) references CATEGORIAPRODUCTO(CategoriaId)
+);
+
+-- BLOQUE 5: Facturación / Ventas --
 
 CREATE TABLE FACTURA (
     FacturaId int primary key identity(1,1),
@@ -145,14 +152,14 @@ CREATE TABLE FACTURA (
     SucursalId smallint not null,
     UsuarioId int not null,
     Fecha datetime not null default GETDATE(),
-    Subtotal money not null,
-    IVA AS (Subtotal * 0.13) PERSISTED,
     Descuento money null,
+    Subtotal money not null,
+    IVA money not null,
     TotalPagar AS (Subtotal + IVA - ISNULL(Descuento, 0)) PERSISTED,
     foreign key (ClienteId) references CLIENTE(ClienteId),
     foreign key (SucursalId) references SUCURSAL(SucursalId),
     foreign key (UsuarioId) references USUARIO(UsuarioId)
-); --
+);
 
 CREATE TABLE DETALLEFACTURA (
     DetalleFacturaId int primary key identity(1,1),
@@ -163,25 +170,42 @@ CREATE TABLE DETALLEFACTURA (
     Subtotal as (Cantidad * PrecioUnitario),
     foreign key (FacturaId) references FACTURA(FacturaId),
     foreign key (ProductoId) references PRODUCTO(ProductoId)
-); --
+);
+
+-- BLOQUE 6: Gestión de Inventario --
+
+CREATE TABLE INVENTARIO (
+    InventarioId int primary key identity(1,1),
+    ProductoId int not null,
+    SucursalId smallint not null,
+    CantidadDisponible int not null default 0,
+    foreign key (ProductoId) references PRODUCTO(ProductoId),
+    foreign key (SucursalId) references SUCURSAL(SucursalId)
+);
 
 CREATE TABLE MOVIMIENTOINVENTARIO (
     MovimientoId int primary key identity(1,1),
-    ProductoId int not null,
-    EmpleadoId int not null,
+    UsuarioId int not null,
+    SucursalId smallint not null,
     ProveedorId int null,
     FacturaId int null,   -- se usa solo si es salida de stock
-    SucursalId int not null,
     Fecha datetime not null default GETDATE(),
-    Cantidad int not null,
     Tipo char(1) check(Tipo in ('E','S')), -- E=Entrada, S=Salida
     CHECK (
         (Tipo='E' AND ProveedorId IS NOT NULL AND FacturaId IS NULL) OR
         (Tipo='S' AND FacturaId IS NOT NULL AND ProveedorId IS NULL)
     ),
-    foreign key (ProductoId) references PRODUCTO(ProductoId),
-    foreign key (EmpleadoId) references EMPLEADO(EmpleadoId),
+    foreign key (UsuarioId) references USUARIO(UsuarioId),
+    foreign key (SucursalId) references SUCURSAL(SucursalId),
     foreign key (FacturaId) references FACTURA(FacturaId),
-    foreign key (ProveedorId) references PROVEEDOR(ProveedorId),
-    foreign key (SucursalId) references SUCURSAL(SucursalId)
+    foreign key (ProveedorId) references PROVEEDOR(ProveedorId)
+);
+
+CREATE TABLE DETALLEMOVIMIENTOINVENTARIO(
+    DetalleMovimientoId int primary key identity(1,1),
+    MovimientoId int not null,
+    Cantidad int not null,
+    ProductoId int not null,
+    foreign key (MovimientoId) references MOVIMIENTOINVENTARIO(MovimientoId),
+    foreign key (ProductoId) references PRODUCTO(ProductoId),
 );
