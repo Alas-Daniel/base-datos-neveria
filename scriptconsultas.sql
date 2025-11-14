@@ -1,0 +1,313 @@
+USE LANEVERIA;
+GO
+
+-- BLOQUE 1: TABLAS PADRE
+-- EMPRESA, DEPTO, CARGO, TIPOUSUARIO, ESTADOUSUARIO, TIPOPRODUCTO, CATEGORIAPRODUCTO
+
+INSERT INTO EMPRESA 
+(NombreComercial, NombreLegal, Logo, Rubro, Direccion, CallCenter, Correo, NIT, NRC)
+VALUES
+('La Nevería', 
+ 'La Nevería S.A. de C.V.', 
+ 'logo_neveria.png', 
+ 'Heladería', 
+ 'Av. Principal #123, Sonsonate, El Salvador', 
+ '503-7000-1234', 
+ 'info@laneveria.com', 
+ '0614-010101-101-2', 
+ '12345');
+
+INSERT INTO DEPTO (Depto) VALUES
+('Sonsonate'),('Santa Ana'),('San Salvador'),('La Libertad'),
+('Chalatenango'),('Cuscatlán'),('La Paz');
+
+INSERT INTO CARGO (Cargo) VALUES
+('Gerente'),('Administrador'),('Vendedor'),('Almacenista'),
+('Contador'),('Tecnico'),('Conserje');
+
+INSERT INTO TIPOUSUARIO (TipoUsuario) VALUES
+('Administrador'),('Vendedor'),('Contable'),('Gerente');
+
+INSERT INTO ESTADOUSUARIO (Estado) VALUES
+('Activo'),('Inactivo'),('Suspendido'),('Retirado'),('Vacaciones');
+
+INSERT INTO TIPOPRODUCTO (TipoProducto) VALUES
+('Insumo'),('Reventa'),('Bebida'),('Fruta'),('Snack'),('Otros');
+
+INSERT INTO CATEGORIAPRODUCTO (Categoria) VALUES
+('Helados'),('Jugos'),('Snacks'),('Bebidas'),('Repostería'),('Otros');
+GO
+
+-- BLOQUE 2: MUNICIPIO Y DISTRITO
+
+INSERT INTO MUNICIPIO (DeptoId, Zona) VALUES
+(1,'CENTRO'),(2,'CENTRO'),(3,'CENTRO'),(4,'CENTRO'),
+(5,'CENTRO'),(6,'CENTRO'),(7,'CENTRO');
+
+INSERT INTO DISTRITO (Distrito, MunicipioId) VALUES
+('Sonsonate Centro', 1),('Santa Ana Centro', 2),('San Salvador Centro', 3),
+('La Libertad Centro', 4),('Chalatenango Centro', 5),('Cuscatlán Centro', 6),
+('La Paz Centro', 7);
+GO
+
+-- BLOQUE 3: SUCURSAL
+
+INSERT INTO SUCURSAL (NombreSucursal, Direccion, DistritoId) VALUES
+('Sucursal Sonsonate', 'Av. Principal #123', 1),
+('Sucursal Santa Ana', 'Calle Central #45', 2),
+('Sucursal San Salvador', 'Blvd. Las Palmas #12', 3),
+('Sucursal La Libertad', 'Calle Libertad #34', 4),
+('Sucursal Chalatenango', 'Av. Central #78', 5),
+('Sucursal Cuscatlán', 'Calle Reforma #56', 6),
+('Sucursal La Paz', 'Av. Los Pinos #22', 7);
+GO
+
+-- BLOQUE 4: EMPLEADO
+
+INSERT INTO EMPLEADO 
+(Nombre, Apellido, Telefono, Email, TipoDocumento, NumeroDocumento, FechaNac, Direccion, Sexo, CargoId, SucursalId)
+VALUES
+('Daniel','Alas','50370000001','daniel.alas@email.com','DUI','00000001','2005-01-01','Col. Centro','H',1,1),
+('Iverson','Zepeda','50370000002','iverson.zepeda@email.com','DUI','00000002','2004-02-02','Col. Norte','H',2,2),
+('Carlos','Cuerno','50370000003','carlos.cuerno@email.com','NIT','00000003','2003-03-03','Col. Sur','H',3,3),
+('Edwin','Gonzalez','50370000004','edwin.gonzalez@email.com','DUI','00000004','2005-04-04','Col. Este','H',4,4),
+('Luis','Ramirez','50370000005','luis.ramirez@email.com','Pasaporte','00000005','2004-05-05','Col. Oeste','H',5,5),
+('Maria','Hernandez','50370000006','maria.hernandez@email.com','DUI','00000006','2003-06-06','Col. Centro','M',6,6),
+('Jose','Flores','50370000007','jose.flores@email.com','NIT','00000007','2005-07-07','Col. Norte','H',7,7),
+('Sofia','Vasquez','50370000008','sofia.vasquez@email.com','DUI','00000008','2004-08-08','Col. Sur','M',1,1),
+('Pedro','Ruiz','50370000009','pedro.ruiz@email.com','DUI','00000009','2003-09-09','Col. Este','H',2,2),
+('Carla','Mejia','50370000010','carla.mejia@email.com','Pasaporte','00000010','2005-10-10','Col. Oeste','M',3,3),
+('Miguel','Castillo','50370000011','miguel.castillo@email.com','DUI','00000011','2004-11-11','Col. Centro','H',4,4),
+('Elena','Mendez','50370000012','elena.mendez@email.com','NIT','00000012','2003-12-12','Col. Norte','M',5,5),
+('Ricardo','Ortega','50370000013','ricardo.ortega@email.com','DUI','00000013','2005-01-13','Col. Sur','H',6,6),
+('Valeria','Torres','50370000014','valeria.torres@email.com','Pasaporte','00000014','2004-02-14','Col. Este','M',7,7),
+('Andres','Salazar','50370000015','andres.salazar@email.com','DUI','00000015','2003-03-15','Col. Oeste','H',1,1);
+GO
+
+-- BLOQUE 5: USUARIO
+
+INSERT INTO USUARIO (Usuario, Clave, TipoUsuarioId, EmpleadoId, EstadoId)
+VALUES
+('danielA','1234',1,1,1),
+('iverZ','1234',2,2,1),
+('carlosC','1234',3,3,1),
+('edwinM','1234',4,4,1),
+('luisR','1234',5,5,1),
+('mariaH','1234',6,6,1),
+('joseF','1234',7,7,1),
+('sofiaV','1234',1,8,1),
+('pedroR','1234',2,9,1),
+('carlaM','1234',3,10,1),
+('miguelC','1234',4,11,1),
+('elenaM','1234',5,12,1),
+('ricardoO','1234',6,13,1),
+('valeriaT','1234',7,14,1),
+('andresS','1234',1,15,1);
+GO
+
+-- BLOQUE 6: CLIENTE
+
+INSERT INTO CLIENTE (Cliente, TipoCliente, DUI, NIT, NRC, Telefono, Correo, Direccion)
+VALUES
+('Pedro Pérez','PN','00000001',NULL,NULL,'5037010001','pedro.perez@email.com','Col. Centro'),
+('Empresa ABC','PJ',NULL,'123456-7','NRC001','5037010002','contacto@abc.com','Av. Principal 123'),
+('Consumidor Final','CF',NULL,NULL,NULL,'5037010003','', 'Col. Norte'),
+('Luis Gomez','PN','00000002',NULL,NULL,'5037010004','luis.gomez@email.com','Col. Sur'),
+('Frutas SA','PJ',NULL,'123456-8','NRC002','5037010005','ventas@frutas.com','Av. Central 45'),
+('Maria Lopez','PN','00000003',NULL,NULL,'5037010006','maria.lopez@email.com','Col. Este'),
+('Juventud CF','CF',NULL,NULL,NULL,'5037010007','', 'Col. Oeste'),
+('Carlos Perez','PN','00000004',NULL,NULL,'5037010008','carlos.perez@email.com','Col. Centro'),
+('Empresa XYZ','PJ',NULL,'123456-9','NRC003','5037010009','ventas@xyz.com','Av. Libertad 12'),
+('Ana Torres','PN','00000005',NULL,NULL,'5037010010','ana.torres@email.com','Col. Norte'),
+('Consumidor Final 2','CF',NULL,NULL,NULL,'5037010011','', 'Col. Sur'),
+('Luis Ramirez','PN','00000006',NULL,NULL,'5037010012','luis.ramirez@email.com','Col. Este'),
+('Sorbeteria SA','PJ',NULL,'123456-10','NRC004','5037010013','ventas@sorbeteria.com','Av. Centro 34'),
+('Sofia Jimenez','PN','00000007',NULL,NULL,'5037010014','sofia.jimenez@email.com','Col. Oeste'),
+('Consumidor Final 3','CF',NULL,NULL,NULL,'5037010015','', 'Col. Norte');
+GO
+
+-- BLOQUE 7: PROVEEDOR
+
+INSERT INTO PROVEEDOR (Proveedor, TipoProveedor, TipoProductoId, Telefono, Email, Direccion, DUI, NIT, NRC)
+VALUES
+('Boquitas Diana','PN',1,'5037020001','contacto@boquitasdiana.com','Col. Centro, Sonsonate','00000001',NULL,NULL),
+('Cooperativa Ganadera de Sonsonate','PJ',3,'5037020002','info@cgs.com','Av. Principal 12, Sonsonate',NULL,'06123456-7','NRC001'),
+('LivSmart','PJ',5,'5037020003','ventas@livsmart.com','Calle Central 45, Santa Ana',NULL,'06123457-8','NRC002'),
+('Industrias La Constancia','PJ',2,'5037020004','contacto@laconstancia.com','Blvd. Las Palmas 12, San Salvador',NULL,'06123458-9','NRC003'),
+('Distribuidora El Cafetal','PN',3,'5037020005','ventas@elcafetal.com','Col. Norte, Santa Ana','00000002',NULL,NULL),
+('Proveedora de Limpieza El Salvador','PJ',6,'5037020006','info@limpiezasv.com','Av. Libertad 34, San Salvador',NULL,'06123459-0','NRC004'),
+('Frutas y Verduras La Huerta','PN',4,'5037020007','contacto@lahuerta.com','Col. Este, La Libertad','00000003',NULL,NULL),
+('Bebidas Tropicales SA','PJ',3,'5037020008','ventas@tropicales.com','Calle Norte 56, Santa Ana',NULL,'06123460-1','NRC005'),
+('SnackDelight','PN',5,'5037020009','snacks@delight.com','Col. Oeste, San Salvador','00000004',NULL,NULL),
+('Dairy Farm Sonsonate','PJ',1,'5037020010','contacto@dairyson.com','Av. Sur 67, Sonsonate',NULL,'06123461-2','NRC006'),
+('Panadería El Trigo','PN',1,'5037020011','ventas@eltrigo.com','Col. Centro, San Salvador','00000005',NULL,NULL),
+('Agroindustria El Sol','PJ',2,'5037020012','info@agrosol.com','Av. Este 78, La Libertad',NULL,'06123462-3','NRC007'),
+('Productos Naturales La Montaña','PN',4,'5037020013','ventas@lamontana.com','Col. Norte, Chalatenango','00000006',NULL,NULL),
+('Bebidas y Jugos La Frutal','PJ',3,'5037020014','contacto@lajfrutal.com','Av. Oeste 89, San Salvador',NULL,'06123463-4','NRC008'),
+('Sorbetería El Helado','PN',1,'5037020015','ventas@elhelado.com','Col. Sur, La Paz','00000007',NULL,NULL);
+GO
+
+-- BLOQUE 8: PRODUCTO
+
+-- PRODUCTOS FINALES (helados, pasteles helados, banana, cafés)
+INSERT INTO PRODUCTO (Producto, CategoriaId, Precio, TipoProducto)
+VALUES
+('Paleta Chocolate Blanco Cookies and creme', 1, 1.50, 'P'),
+('Paleta Chocolate Capuchino', 1, 1.50, 'P'),
+('Paleta Chocolate Choco Avellana', 1, 1.50, 'P'),
+('Paleta Chocolate Choco Lover', 1, 1.50, 'P'),
+('Paleta Chocolate Nevechoc', 1, 1.50, 'P'),
+('Paleta Cremosa Cream Pop', 1, 1.50, 'P'),
+('Paleta Cremosa Mango Fresa', 1, 1.50, 'P'),
+('Pastel Helado Cardenal de Fresa', 2, 12.00, 'P'),
+('Pastel Helado Cheesecake de Frambuesa', 2, 12.00, 'P'),
+('Pastel Helado Choco Brownie', 2, 12.00, 'P'),
+('Pastel Helado Choco Caramelo', 2, 12.00, 'P'),
+('Pastel Helado Cookies and creme', 2, 12.00, 'P'),
+('Pastel Helado Multisabor', 2, 12.00, 'P'),
+('Pastel Helado Unicornio', 2, 12.00, 'P'),
+('Banana Fresa', 6, 5.00, 'P'),
+('Banana Split', 6, 6.00, 'P'),
+('Banana Topper', 6, 5.50, 'P'),
+('Choco Banana', 6, 5.50, 'P'),
+('Ice Cream Soda', 6, 4.00, 'P'),
+('Mega Sundae', 6, 6.50, 'P'),
+('Milk Shake', 6, 4.50, 'P'),
+('Nevi Sundae', 6, 6.50, 'P'),
+('Party Cup', 6, 3.50, 'P'),
+('Sundae', 6, 4.00, 'P'),
+('Sundae Dinosaurio', 6, 4.50, 'P'),
+('Sundae Unicornio', 6, 4.50, 'P'),
+('Café Caliente Americano', 4, 2.50, 'P'),
+('Café Caliente Capuchino', 4, 3.00, 'P'),
+('Café Caliente Caramel Macchiato', 4, 3.50, 'P'),
+('Café Caliente Mocachino', 4, 3.50, 'P'),
+('Café Helado Caramelo', 4, 3.50, 'P'),
+('Café Helado Chocolate', 4, 3.50, 'P'),
+('Café Helado Chocolate Galleta', 4, 3.50, 'P'),
+('Café Helado Cookie and Creme', 4, 3.50, 'P'),
+('Café Helado Mocca', 4, 3.50, 'P'),
+-- Reventa
+('Jugo Cascada Naranja', 4, 1.00, 'R'),
+('Jugo Petit Piña', 4, 1.00, 'R'),
+('Coca Cola', 4, 1.20, 'R'),
+('Agua', 4, 1.20, 'R');
+GO
+
+-- BLOQUE 9: INVENTARIO
+
+-- Aquí sí usamos UnidadMedida
+INSERT INTO INVENTARIO (ProductoId, SucursalId, CantidadDisponible, UnidadMedida)
+VALUES
+-- Insumos (productos finales)
+(1, 1, 50, 'Litros'),
+(2, 1, 20, 'Litros'),
+(3, 1, 100, 'Kg'),
+(4, 1, 30, 'Litros'),
+(5, 1, 15, 'Kg'),
+(6, 1, 10, 'Kg'),
+(7, 1, 200, 'Unidades'),
+(8, 1, 5, 'Litros'),
+(9, 1, 5, 'Litros'),
+(10, 1, 5, 'Litros'),
+(11, 1, 5, 'Litros'),
+(12, 1, 10, 'Kg'),
+(13, 1, 10, 'Kg'),
+(14, 1, 10, 'Kg'),
+(15, 1, 10, 'Kg'),
+(16, 1, 10, 'Kg'),
+(17, 1, 5, 'Kg'),
+(18, 1, 5, 'Kg'),
+(19, 1, 5, 'Kg'),
+(20, 1, 5, 'Kg'),
+(21, 1, 5, 'Kg'),
+-- Productos de reventa
+(36, 1, 200, 'Unidades'),
+(37, 1, 200, 'Unidades'),
+(38, 1, 150, 'Unidades'),
+(39, 1, 150, 'Unidades');
+GO
+
+-- BLOQUE 10: FACTURA
+
+INSERT INTO FACTURA (ClienteId, SucursalId, UsuarioId, Descuento, Subtotal, IVA)
+VALUES
+(1,1,1,0,10,1.3),
+(2,2,2,0,20,2.6),
+(3,3,3,0,15,1.95),
+(4,4,4,0,25,3.25),
+(5,5,5,0,18,2.34),
+(6,6,6,0,30,3.9),
+(7,7,7,0,22,2.86),
+(8,1,8,0,12,1.56),
+(9,2,9,0,16,2.08),
+(10,3,10,0,14,1.82),
+(11,4,11,0,19,2.47),
+(12,5,12,0,17,2.21),
+(13,6,13,0,23,2.99),
+(14,7,14,0,20,2.6),
+(15,1,15,0,21,2.73);
+GO
+
+-- BLOQUE 11: DETALLEFACTURA
+
+INSERT INTO DETALLEFACTURA (FacturaId, ProductoId, Cantidad, PrecioUnitario)
+VALUES
+(1,1,2,0.5),(1,3,1,1.0),
+(2,4,3,0.8),(2,2,2,0.75),
+(3,5,5,0.6),(3,6,2,0.4),
+(4,7,1,1.2),(4,8,2,1.0),
+(5,9,3,0.7),(5,10,1,0.85),
+(6,11,4,0.5),(6,12,2,0.45),
+(7,13,2,1.1),(7,14,1,1.2),
+(8,1,1,0.5),(8,2,2,0.75),
+(9,3,3,1.0),(9,4,2,0.8),
+(10,5,1,0.6),(10,6,3,0.4),
+(11,7,2,1.2),(11,8,2,1.0),
+(12,9,1,0.7),(12,10,3,0.85),
+(13,11,2,0.5),(13,12,1,0.45),
+(14,13,1,1.1),(14,14,2,1.2),
+(15,1,3,0.5),(15,2,2,0.75);
+GO
+
+-- BLOQUE 12: MOVIMIENTOINVENTARIO
+
+INSERT INTO MOVIMIENTOINVENTARIO (UsuarioId, SucursalId, ProveedorId, Tipo, Observaciones)
+VALUES
+(1,1,1,'E','Entrada inicial'),
+(2,2,2,'E','Entrada inicial'),
+(3,3,3,'E','Entrada inicial'),
+(4,4,4,'E','Entrada inicial'),
+(5,5,5,'E','Entrada inicial'),
+(6,6,6,'E','Entrada inicial'),
+(7,7,7,'E','Entrada inicial'),
+(8,1,8,'E','Entrada inicial'),
+(9,2,9,'E','Entrada inicial'),
+(10,3,10,'E','Entrada inicial'),
+(11,4,11,'E','Entrada inicial'),
+(12,5,12,'E','Entrada inicial'),
+(13,6,13,'E','Entrada inicial'),
+(14,7,14,'E','Entrada inicial'),
+(15,1,15,'E','Entrada inicial');
+GO
+
+-- BLOQUE 13: DETALLEMOVIMIENTOINVENTARIO
+
+INSERT INTO DETALLEMOVIMIENTOINVENTARIO (MovimientoId, Cantidad, ProductoId)
+VALUES
+(1,50,1),(1,30,3),
+(2,40,4),(2,20,2),
+(3,25,5),(3,15,6),
+(4,60,7),(4,35,8),
+(5,20,9),(5,10,10),
+(6,30,11),(6,25,12),
+(7,15,13),(7,10,14),
+(8,40,1),(8,20,2),
+(9,30,3),(9,25,4),
+(10,20,5),(10,30,6),
+(11,15,7),(11,10,8),
+(12,25,9),(12,15,10),
+(13,30,11),(13,10,12),
+(14,20,13),(14,25,14),
+(15,30,1),(15,20,2);
+GO

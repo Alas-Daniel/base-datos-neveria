@@ -15,26 +15,26 @@ CREATE TABLE EMPRESA (
     Correo varchar(100) not null,
     NIT varchar(50) not null,
     NRC varchar(50) not null
-);
+); --
 
 CREATE TABLE DEPTO (
     DeptoId tinyint primary key identity(1,1),
     Depto varchar(20) unique not null
-);
+); --
 
 CREATE TABLE MUNICIPIO (
     MunicipioId smallint primary key identity(1,1),
     DeptoId tinyint not null,
     Zona varchar(10) check (Zona in ('CENTRO', 'ESTE', 'NORTE', 'SUR', 'OESTE')) not null,
     foreign key (DeptoId) references DEPTO(DeptoId)
-);
+); --
 
 CREATE TABLE DISTRITO (
     DistritoId smallint primary key identity(1,1), 
     Distrito varchar(50) not null,
     MunicipioId smallint not null,
     foreign key (MunicipioId) references MUNICIPIO(MunicipioId)
-);
+); --
 
 CREATE TABLE SUCURSAL (
     SucursalId smallint primary key identity(1,1),
@@ -42,24 +42,24 @@ CREATE TABLE SUCURSAL (
     Direccion varchar(255) not null,
     DistritoId smallint not null,
     foreign key (DistritoId) references DISTRITO(DistritoId)
-);
+); --
 
 -- BLOQUE 2: Gestión de usuarios y empleados --
 
 CREATE TABLE CARGO (
     CargoId smallint primary key identity(1,1),
     Cargo varchar(30) unique not null
-);
+); --
 
 CREATE TABLE TIPOUSUARIO (
     TipoUsuarioId tinyint primary key identity(1,1),
     TipoUsuario varchar(25) unique not null
-);
+); --
 
 CREATE TABLE ESTADOUSUARIO (
     EstadoId tinyint primary key identity(1,1),
     Estado varchar(20) unique not null
-);
+); --
 
 CREATE TABLE EMPLEADO (
     EmpleadoId int primary key identity(1,1),
@@ -77,7 +77,7 @@ CREATE TABLE EMPLEADO (
     SucursalId smallint not null,
     foreign key (Cargoid) references CARGO(Cargoid),
     foreign key (SucursalId) references SUCURSAL(SucursalId)
-);
+); --
 
 CREATE TABLE USUARIO (
     UsuarioId int primary key identity(1,1),
@@ -89,7 +89,7 @@ CREATE TABLE USUARIO (
     foreign key (TipoUsuarioId) references TIPOUSUARIO(TipoUsuarioId),
     foreign key (EmpleadoId) references EMPLEADO(EmpleadoId),
     foreign key (EstadoId) references ESTADOUSUARIO(EstadoId)
-);
+); --
 
 -- BLOQUE 3: Clientes y Proveedores --
 
@@ -107,13 +107,13 @@ CREATE TABLE CLIENTE (
         (TipoCliente='CF') OR -- Consumidor Final
         (TipoCliente='PN' AND DUI IS NOT NULL) OR -- Persona Natural con DUI
         (TipoCliente='PJ' AND NIT IS NOT NULL AND NRC IS NOT NULL) -- Empresa completa
-    )  
-);
+    )
+); --
 
 CREATE TABLE TIPOPRODUCTO (
     TipoProductoId tinyint primary key identity(1,1),
     TipoProducto varchar(50) unique not null
-);
+); --
 
 CREATE TABLE PROVEEDOR (
     ProveedorId int primary key identity(1,1),
@@ -127,14 +127,14 @@ CREATE TABLE PROVEEDOR (
     NIT varchar(50) unique null,
     NRC varchar(20) unique null,
     foreign key (TipoProductoId) references TIPOPRODUCTO(TipoProductoId)
-);
+); --
 
 -- BLOQUE 4: Catálogo de productos --
 
 CREATE TABLE CATEGORIAPRODUCTO (
     CategoriaId tinyint primary key identity(1,1),
     Categoria varchar(50) unique not null
-);
+); --
 
 CREATE TABLE PRODUCTO (
     ProductoId int primary key identity(1,1),
@@ -143,7 +143,7 @@ CREATE TABLE PRODUCTO (
     Precio money not null,
     TipoProducto char(1) check (TipoProducto in ('P', 'I', 'R')) not null,
     foreign key (CategoriaId) references CATEGORIAPRODUCTO(CategoriaId)
-);
+); --
 
 -- BLOQUE 5: Facturación / Ventas --
 
@@ -160,7 +160,7 @@ CREATE TABLE FACTURA (
     foreign key (ClienteId) references CLIENTE(ClienteId),
     foreign key (SucursalId) references SUCURSAL(SucursalId),
     foreign key (UsuarioId) references USUARIO(UsuarioId)
-);
+); --
 
 CREATE TABLE DETALLEFACTURA (
     DetalleFacturaId int primary key identity(1,1),
@@ -168,9 +168,10 @@ CREATE TABLE DETALLEFACTURA (
     ProductoId int not null,
     Cantidad int not null,
     PrecioUnitario money not null,
-    Subtotal as (Cantidad * PrecioUnitario), -- P, R
+    Subtotal as (Cantidad * PrecioUnitario) PERSISTED, -- subtotal calculado
     foreign key (FacturaId) references FACTURA(FacturaId),
-    foreign key (ProductoId) references PRODUCTO(ProductoId)
+    foreign key (ProductoId) references PRODUCTO(ProductoId),
+    CONSTRAINT UQ_Factura_Producto UNIQUE(FacturaId, ProductoId)
 );
 
 -- BLOQUE 6: Gestión de Inventario --
@@ -184,7 +185,7 @@ CREATE TABLE INVENTARIO (
     CONSTRAINT UQ_Inventario_Producto_Sucursal UNIQUE (ProductoId, SucursalId), -- I, R
     foreign key (ProductoId) references PRODUCTO(ProductoId),
     foreign key (SucursalId) references SUCURSAL(SucursalId)
-);
+); --
 
 CREATE TABLE MOVIMIENTOINVENTARIO (
     MovimientoId int primary key identity(1,1),
@@ -201,7 +202,7 @@ CREATE TABLE MOVIMIENTOINVENTARIO (
     foreign key (UsuarioId) references USUARIO(UsuarioId),
     foreign key (SucursalId) references SUCURSAL(SucursalId),
     foreign key (ProveedorId) references PROVEEDOR(ProveedorId)
-);
+); --
 
 CREATE TABLE DETALLEMOVIMIENTOINVENTARIO(
     DetalleMovimientoId int primary key identity(1,1),
@@ -209,8 +210,10 @@ CREATE TABLE DETALLEMOVIMIENTOINVENTARIO(
     Cantidad decimal(10,2) not null, -- I, R
     ProductoId int not null, 
     foreign key (MovimientoId) references MOVIMIENTOINVENTARIO(MovimientoId),
-    foreign key (ProductoId) references PRODUCTO(ProductoId)
+    foreign key (ProductoId) references PRODUCTO(ProductoId),
+    CONSTRAINT UQ_Movimiento_Producto UNIQUE(MovimientoId, ProductoId)
 );
+
 
 -- TRIGGERS PARA CONTROL DE INVENTARIO --
 CREATE TRIGGER trg_ActualizarInventarioDespuesMovimiento
@@ -237,16 +240,17 @@ BEGIN
     INSERT INTO INVENTARIO (ProductoId, SucursalId, CantidadDisponible, UnidadMedida)
     SELECT d.ProductoId, m.SucursalId,
         CASE m.Tipo WHEN 'E' THEN d.Cantidad ELSE 0 END,
-        d.UnidadMedida  -- usar la unidad definida en el detalle del movimiento
+        'Unidades' 
     FROM inserted d
     INNER JOIN MOVIMIENTOINVENTARIO m ON d.MovimientoId = m.MovimientoId
     WHERE NOT EXISTS (
         SELECT 1 
         FROM INVENTARIO i
         WHERE i.ProductoId = d.ProductoId
-          AND i.SucursalId = m.SucursalId
+        AND i.SucursalId = m.SucursalId
     );
 END;
+
 
 
 CREATE TRIGGER trg_ActualizarFacturaDespuesDetalle
