@@ -119,6 +119,7 @@ VALUES
 ('Sofia Jimenez','PN','00000007',NULL,NULL,'5037010014','sofia.jimenez@email.com','Col. Oeste'),
 ('Consumidor Final 3','CF',NULL,NULL,NULL,'5037010015','','Col. Norte');
 GO
+
 -- BLOQUE 7: PROVEEDOR
 
 INSERT INTO PROVEEDOR (Proveedor, TipoProveedor, TipoProductoId, Telefono, Email, Direccion, DUI, NIT, NRC)
@@ -142,7 +143,7 @@ GO
 
 -- BLOQUE 8: PRODUCTO
 
--- PRODUCTOS FINALES (helados, pasteles helados, banana, cafés)
+-- PRODUCTOS FINALES TIPO 'P'
 INSERT INTO PRODUCTO (Producto, CategoriaId, Precio, TipoProducto)
 VALUES
 ('Paleta Chocolate Blanco Cookies and creme', 1, 1.50, 'P'),
@@ -152,13 +153,13 @@ VALUES
 ('Paleta Chocolate Nevechoc', 1, 1.50, 'P'),
 ('Paleta Cremosa Cream Pop', 1, 1.50, 'P'),
 ('Paleta Cremosa Mango Fresa', 1, 1.50, 'P'),
-('Pastel Helado Cardenal de Fresa', 2, 12.00, 'P'),
-('Pastel Helado Cheesecake de Frambuesa', 2, 12.00, 'P'),
-('Pastel Helado Choco Brownie', 2, 12.00, 'P'),
-('Pastel Helado Choco Caramelo', 2, 12.00, 'P'),
-('Pastel Helado Cookies and creme', 2, 12.00, 'P'),
-('Pastel Helado Multisabor', 2, 12.00, 'P'),
-('Pastel Helado Unicornio', 2, 12.00, 'P'),
+('Pastel Helado Cardenal de Fresa', 5, 12.00, 'P'),
+('Pastel Helado Cheesecake de Frambuesa', 5, 12.00, 'P'),
+('Pastel Helado Choco Brownie', 5, 12.00, 'P'),
+('Pastel Helado Choco Caramelo', 5, 12.00, 'P'),
+('Pastel Helado Cookies and creme', 5, 12.00, 'P'),
+('Pastel Helado Multisabor', 5, 12.00, 'P'),
+('Pastel Helado Unicornio', 5, 12.00, 'P'),
 ('Banana Fresa', 6, 5.00, 'P'),
 ('Banana Split', 6, 6.00, 'P'),
 ('Banana Topper', 6, 5.50, 'P'),
@@ -179,45 +180,61 @@ VALUES
 ('Café Helado Chocolate', 4, 3.50, 'P'),
 ('Café Helado Chocolate Galleta', 4, 3.50, 'P'),
 ('Café Helado Cookie and Creme', 4, 3.50, 'P'),
-('Café Helado Mocca', 4, 3.50, 'P'),
--- Reventa
+('Café Helado Mocca', 4, 3.50, 'P');
+
+-- INSUMOS TIPO 'I' 
+INSERT INTO PRODUCTO (Producto, CategoriaId, Precio, TipoProducto)
+VALUES
+('Leche Entera', 6, 0.00, 'I'),
+('Crema de Leche', 6, 0.00, 'I'),
+('Azúcar', 6, 0.00, 'I'),
+('Chocolate en Polvo', 6, 0.00, 'I'),
+('Vainilla Líquida', 6, 0.00, 'I'),
+('Fresas Frescas', 6, 0.00, 'I'),
+('Bananos', 6, 0.00, 'I'),
+('Café Molido', 6, 0.00, 'I'),
+('Galletas Oreo', 6, 0.00, 'I'),
+('Jarabe de Caramelo', 6, 0.00, 'I'),
+('Chispas de Chocolate', 6, 0.00, 'I'),
+('Nueces Picadas', 6, 0.00, 'I'),
+('Cacao en Polvo', 6, 0.00, 'I'),
+('Avellanas', 6, 0.00, 'I'),
+('Frambuesas', 6, 0.00, 'I');
+
+-- PRODUCTOS DE REVENTA TIPO 'R'
+INSERT INTO PRODUCTO (Producto, CategoriaId, Precio, TipoProducto)
+VALUES
 ('Jugo Cascada Naranja', 4, 1.00, 'R'),
 ('Jugo Petit Piña', 4, 1.00, 'R'),
 ('Coca Cola', 4, 1.20, 'R'),
-('Agua', 4, 1.20, 'R');
+('Agua Embotellada', 4, 0.75, 'R');
 GO
 
 -- BLOQUE 9: INVENTARIO
 
 INSERT INTO INVENTARIO (ProductoId, SucursalId, CantidadDisponible, UnidadMedida)
 VALUES
--- Insumos (productos finales)
-(1, 1, 50, 'Litros'),
-(2, 1, 20, 'Litros'),
-(3, 1, 100, 'Kg'),
-(4, 1, 30, 'Litros'),
-(5, 1, 15, 'Kg'),
-(6, 1, 10, 'Kg'),
-(7, 1, 200, 'Unidades'),
-(8, 1, 5, 'Litros'),
-(9, 1, 5, 'Litros'),
-(10, 1, 5, 'Litros'),
-(11, 1, 5, 'Litros'),
-(12, 1, 10, 'Kg'),
-(13, 1, 10, 'Kg'),
-(14, 1, 10, 'Kg'),
-(15, 1, 10, 'Kg'),
-(16, 1, 10, 'Kg'),
-(17, 1, 5, 'Kg'),
-(18, 1, 5, 'Kg'),
-(19, 1, 5, 'Kg'),
-(20, 1, 5, 'Kg'),
-(21, 1, 5, 'Kg'),
--- Productos de reventa
-(36, 1, 200, 'Unidades'),
-(37, 1, 200, 'Unidades'),
-(38, 1, 150, 'Unidades'),
-(39, 1, 150, 'Unidades');
+-- Insumos (ProductoId 36-50)
+(36, 1, 50.00, 'Litros'),
+(37, 1, 20.00, 'Litros'), 
+(38, 1, 100.00, 'Kg'),
+(39, 1, 30.00, 'Kg'),
+(40, 1, 15.00, 'Litros'),
+(41, 1, 25.00, 'Kg'),
+(42, 1, 40.00, 'Kg'),
+(43, 1, 10.00, 'Kg'),
+(44, 1, 50.00, 'Unidades'),
+(45, 1, 15.00, 'Litros'),
+(46, 1, 20.00, 'Kg'),
+(47, 1, 10.00, 'Kg'),
+(48, 1, 25.00, 'Kg'),
+(49, 1, 12.00, 'Kg'),
+(50, 1, 18.00, 'Kg'),
+-- Productos de reventa 
+(51, 1, 200, 'Unidades'),
+(52, 1, 200, 'Unidades'),
+(53, 1, 150, 'Unidades'),
+(54, 1, 150, 'Unidades');
 GO
 
 -- BLOQUE 10: FACTURA
@@ -245,50 +262,51 @@ GO
 
 INSERT INTO DETALLEFACTURA (FacturaId, ProductoId, Cantidad, PrecioUnitario)
 VALUES
-(1,1,2,0.5),(1,3,1,1.0),
-(2,4,3,0.8),(2,2,2,0.75),
-(3,5,5,0.6),(3,6,2,0.4),
-(4,7,1,1.2),(4,8,2,1.0),
-(5,9,3,0.7),(5,10,1,0.85),
-(6,11,4,0.5),(6,12,2,0.45),
-(7,13,2,1.1),(7,14,1,1.2),
-(8,1,1,0.5),(8,2,2,0.75),
-(9,3,3,1.0),(9,4,2,0.8),
-(10,5,1,0.6),(10,6,3,0.4),
-(11,7,2,1.2),(11,8,2,1.0),
-(12,9,1,0.7),(12,10,3,0.85),
-(13,11,2,0.5),(13,12,1,0.45),
-(14,13,1,1.1),(14,14,2,1.2),
-(15,1,3,0.5),(15,2,2,0.75);
+-- Facturas con productos finales (tipo P)
+(1,1,2,1.50),(1,3,1,1.50),
+(2,4,3,1.50),(2,2,2,1.50),
+(3,5,5,1.50),(3,6,2,1.50),
+(4,7,1,1.50),(4,8,2,12.00),
+(5,9,3,12.00),(5,10,1,12.00),
+(6,11,4,12.00),(6,12,2,12.00),
+(7,13,2,12.00),(7,14,1,12.00),
+(8,15,1,5.00),(8,16,2,6.00),
+(9,17,3,5.50),(9,18,2,5.50),
+(10,19,1,4.00),(10,20,3,6.50),
+(11,21,2,4.50),(11,22,2,6.50),
+(12,23,1,3.50),(12,24,3,4.00),
+(13,25,2,4.50),(13,26,1,4.50),
+(14,27,1,2.50),(14,28,2,3.00),
+-- Facturas con productos de reventa (tipo R)
+(15,51,3,1.00),(15,53,2,1.20);
 GO
 
 -- BLOQUE 12: MOVIMIENTOINVENTARIO
 
 INSERT INTO MOVIMIENTOINVENTARIO (UsuarioId, SucursalId, ProveedorId, Tipo, Observaciones)
 VALUES
-(1,1,1,'E','Entrada inicial'),
-(2,2,2,'E','Entrada inicial'),
-(3,3,3,'E','Entrada inicial'),
-(4,4,4,'E','Entrada inicial'),
-(5,5,5,'E','Entrada inicial'),
-(6,6,6,'E','Entrada inicial'),
-(7,7,7,'E','Entrada inicial'),
-(8,1,8,'E','Entrada inicial'),
-(9,2,9,'E','Entrada inicial');
+(1,1,1,'E','Entrada de insumos - Leche y crema'),
+(2,2,2,'E','Entrada de insumos - Chocolate y azúcar'),
+(3,3,3,'E','Entrada de bebidas para reventa'),
+(4,4,4,'E','Entrada de insumos - Café y vainilla'),
+(5,5,5,'E','Entrada de frutas frescas'),
+(6,6,6,'E','Entrada de productos de reventa'),
+(7,7,7,'E','Entrada de galletas y chispas'),
+(8,1,8,'E','Entrada de jarabe y cacao'),
+(9,2,9,'E','Entrada de nueces y avellanas');
 GO
 
--- BLOQUE 13: DETALLEMOVIMIENTOINVENTARIO
+-- BLOQUE 13: DETALLEMOVIMIENTOINVENTARIO 
 
 INSERT INTO DETALLEMOVIMIENTOINVENTARIO (MovimientoId, Cantidad, ProductoId)
 VALUES
-(1,50,1),(1,30,3),
-(2,40,4),(2,20,2),
-(3,25,5),(3,15,6),
-(4,60,7),(4,35,8),
-(5,20,9),(5,10,10),
-(6,30,11),(6,25,12),
-(7,15,13),(7,10,14),
-(8,40,1),(8,20,2),
-(9,30,3),(9,25,4);
+(1, 50.00, 36), (1, 20.00, 37),
+(2, 30.00, 39), (2, 100.00, 38),
+(3, 200, 51), (3, 150, 53),
+(4, 10.00, 43), (4, 15.00, 40),
+(5, 25.00, 41), (5, 40.00, 42),
+(6, 200, 52), (6, 150, 54),
+(7, 50, 44), (7, 20.00, 46),
+(8, 15.00, 45), (8, 25.00, 48),
+(9, 10.00, 47), (9, 12.00, 49);
 GO
-
